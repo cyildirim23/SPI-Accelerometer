@@ -73,7 +73,15 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b0101:    C = five;
                 4'b0110:    C = six;
                 4'b0111:    C = seven;
-            endcase
+                4'b1000:    C = eight;
+                4'b1001:    C = nine;
+                4'b1010:    C = A;  
+                4'b1011:    C = b;
+                4'b1100:    C = c;
+                4'b1101:    C = d;
+                4'b1110:    C = E;
+                4'b1111:    C = F;
+            endcase 
         end  
         1:
         begin 
