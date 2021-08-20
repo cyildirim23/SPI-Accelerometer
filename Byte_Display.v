@@ -23,9 +23,9 @@
 module Byte_Display(                     //This module is responsible for displaying the mode, last received byte
                                     //(in hex, if the device is in receive mode) and the next byte to send 
                                     //(if the device is in transmit mode) 
-                                            
+    input ten_bit,                                
     input wire [7:0] Rx_Data,           //Array which holds the most recently stored word  (Displayed in Rx mode)
-    input wire Array,
+    input wire [1:0] Array,
     
     output reg [7:1] C,         //Array responsible for the lighting of each individual segment for a 7-seg display
     output reg [3:0] AN         //Array responsible for controlling which displays are in use 
@@ -35,7 +35,25 @@ module Byte_Display(                     //This module is responsible for displa
     
     wire [3:0] r_dataLower;     
     wire [3:0] r_dataUpper;     
+    reg [1:0] r_data_extend;
     
+    /*always@(ten_bit)
+    begin
+        if (!ten_bit)
+        begin
+            r_dataLower = Rx_Data[3:0];
+            r_dataUpper = Rx_Data[7:4];
+            r_data_extend = 0;
+        end
+        if (ten_bit)
+        begin
+            r_dataLower = Rx_Data[3:0];
+            r_dataUpper = Rx_Data[7:4];
+            r_data_extend = Rx_Data[9:8];
+        end
+    end
+    
+  */
     assign r_dataLower = Rx_Data[3:0];
     assign r_dataUpper = Rx_Data[7:4];
     
@@ -95,6 +113,16 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b1101:    C = d;
                 4'b1110:    C = E;
                 4'b1111:    C = F;
+            endcase
+        end
+        2:
+        begin 
+            AN = 4'b1101;
+            case(r_data_extend)
+                2'b00:    C = zero;
+                2'b01:    C = one;
+                2'b10:    C = two;
+                2'b11:    C = three;
             endcase
         end
         default: AN = 4'b1111;

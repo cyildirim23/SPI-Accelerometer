@@ -52,7 +52,7 @@ module top(
     wire ten_bit;
     wire [1:0] Array;
     
-    ADXL345_SPI_Master Accel(.clk(clk), .CS1(CS1), .Test_Switch(Test_Switch), .axis_data(axis_data),
+     ADXL345_SPI_Master Accel(.clk(clk), .CS1(CS1), .Test_Switch(Test_Switch), .axis_data(axis_data),
     .MISO(MISO), .MOSI(MOSI), .MISO_Data(MISO_Data),  .spi_clk(spi_clk), .clk_count(clk_count), .CS(CS), .ten_bit(ten_bit));
     
     Sw_Debug Data_In_LEDs (.switch(Parallel_In), .clk(clk), .LED(Parallel_Out));
