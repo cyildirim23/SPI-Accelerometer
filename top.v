@@ -25,6 +25,7 @@ module top(
     input clk,  //
     input CS1,  //
     input axis_data,
+    input format,
     //Slave-Master connections
     input MISO, //
     output MOSI, //
@@ -33,7 +34,6 @@ module top(
     
     //input [7:0] Parallel_In, //
     input Test_Switch,
-    input read,
     
     //Display outputs
     output [7:1] C,
@@ -50,7 +50,7 @@ module top(
     wire read_ready;
     wire write_ready;
     wire ten_bit;
-    wire [1:0] Array;
+    wire Array;
     
      ADXL345_SPI_Master Accel(.clk(clk), .CS1(CS1), .Test_Switch(Test_Switch), .axis_data(axis_data),
     .MISO(MISO), .MOSI(MOSI), .MISO_Data(MISO_Data),  .spi_clk(spi_clk), .clk_count(clk_count), .CS(CS), .ten_bit(ten_bit));
