@@ -32,7 +32,7 @@ module SPI_Master(
     input wire [7:0] Byte_Command,
     input wire [3:0] bytes_to_read,
     input wire [3:0] bytes_to_write,
-    input wire [3:0] MI_IndexReset,
+    input wire MB,
     input ten_bit, 
     output reg CMD_OUT = 0,
     
@@ -40,21 +40,22 @@ module SPI_Master(
     output reg MOSI, //MOSI stream (top out) 
     output reg spi_clk = 1,
     
-    output reg [7:0] MISO_Data, //Parallelized MISO, to store in FIFO
-    output reg [7:0] r_MOSI_Data,
-    output reg byte_write = 0, //ready to write MISO data to FIFO (FIFO in)
-    output reg byte_read = 0, //ready to read from FIFO (FIFO in)
+    output reg [15:0] MISO_Data, //Parallelized MISO, to store in FIFO
+  
     output reg [3:0] MI_bitIndex = 7,
     output reg [2:0] MO_bitIndex = 7,
     output reg [6:0] clk_count = 0,
     output reg [2:0] SM = 0,
-    output reg MO_Byte_Complete
-    
+    output reg MO_Byte_Complete,
+    input wire [3:0] MI_IndexReset,
+    output reg MI_Byte_Complete = 0,
+    output reg [1:0] i_Byte_Count = 0,
+    output reg [1:0] o_Byte_Count = 0,
+    output reg Load
     );          
     
-    reg [7:0] Byte_Command_new;
-    reg [7:0] Byte_Command_old;
-    
+
+    reg [15:0] r_MOSI_Data;
             
     //Configure CPOL and CPHA
     
@@ -68,19 +69,17 @@ module SPI_Master(
    
     
    reg off_after_complete = 0;
-   reg MI_Byte_Complete = 0;
+   //reg MI_Byte_Complete = 0;
    
    
-   reg [3:0] o_Byte_Count = 0;
-   reg [3:0] i_Byte_Count = 0;
+   //reg [3:0] o_Byte_Count = 0;
+   
     
     parameter t_delay = 2;
     parameter IDLE = 0;
     parameter CS_ASSERT = 1;
     parameter COMMUNICATION = 2;
     parameter CS_DEASSERT = 3;
-    
-    
     
     always@(posedge clk)
     begin
@@ -106,6 +105,7 @@ module SPI_Master(
                     MI_bitIndex <= MI_IndexReset;
                     o_Byte_Count <= bytes_to_write;
                     i_Byte_Count <= bytes_to_read;
+                    CMD_OUT <= 0;
                 end
                 else
                 begin
@@ -120,59 +120,59 @@ module SPI_Master(
         begin
             if (MI_Byte_Complete)
             begin
-                
+                Load <= 1;
                 MISO_Data <= r_MISO_Data;
             end
-            if (!CS1)
-            begin
-                off_after_complete <= 1;
-            end
-            if (off_after_complete)
-            begin
-                if (i_Byte_Count == 0 && o_Byte_Count == 0)
-                begin
-                    clk_count <= 0;
-                    SM <= CS_DEASSERT;
-                end
-            end
-            if (clk_count == (clks_per_masterclk - 1)/ 2)     //Generate Master clock
+            else if (!MI_Byte_Complete)
+                Load <= 0;
+            if (o_Byte_Count == 0 && i_Byte_Count == 0)// || (!CS1 && o_Byte_Count == 0 && i_Byte_Count == 0))
             begin
                 clk_count <= 0;
-                spi_clk <= ~spi_clk;
-                if (spi_clk && !(o_Byte_Count == 0 && off_after_complete))    //negedge spi_clk, output next bit to MOSI
+                SM <= CS_DEASSERT;
+                spi_clk <= 1;
+            end
+            else //Just added
+            begin
+                if (clk_count == (clks_per_masterclk - 1)/ 2)     //Generate Master clock
                 begin
-                    MOSI <= Byte_Command[MO_bitIndex];
-                    MO_bitIndex <= MO_bitIndex - 1;
-                    if(MO_bitIndex > 0)
+                    clk_count <= 0;
+                    spi_clk <= ~spi_clk;
+                    if (spi_clk && !(o_Byte_Count == 0))    //negedge spi_clk, output next bit to MOSI
                     begin
-                        MO_Byte_Complete <= 0;
-                    end
-                    else
+                        MOSI <= Byte_Command[MO_bitIndex];
+                        MO_bitIndex <= MO_bitIndex - 1;
+                        if(MO_bitIndex > 0)
+                        begin
+                            MO_Byte_Complete <= 0;
+                        end
+                        else
+                        begin
+                            o_Byte_Count <= o_Byte_Count - 1;
+                            MO_Byte_Complete <= 1;
+                            if (bytes_to_write > 1)  
+                                CMD_OUT <= ~CMD_OUT;
+                        end         
+                    end    
+                    else if (!spi_clk && !(i_Byte_Count == 0) && o_Byte_Count == 0)//(posedge spi_clk, sample MISO
                     begin
-                        o_Byte_Count <= o_Byte_Count - 1;
-                        MO_Byte_Complete <= 1;  
-                        CMD_OUT <= ~CMD_OUT;
-                    end         
-                end    
-                else if (!spi_clk && !(i_Byte_Count == 0 && off_after_complete))//(posedge spi_clk, sample MISO
-                begin
-                    r_MISO_Data[MI_bitIndex] <= MISO;
-                    if (MI_bitIndex > 0)
-                    begin
-                        MI_bitIndex <= MI_bitIndex - 1;
-                        MI_Byte_Complete <= 0;
-                    end
-                    else
-                    begin
-                        MI_bitIndex <= MI_IndexReset;
-                        MI_Byte_Complete <= 1;
-                        i_Byte_Count <= i_Byte_Count - 1;
+                        r_MISO_Data[MI_bitIndex] <= MISO;
+                        if (MI_bitIndex > 0)
+                        begin
+                            MI_bitIndex <= MI_bitIndex - 1;
+                            MI_Byte_Complete <= 0;
+                        end
+                        else
+                        begin
+                            MI_bitIndex <= MI_IndexReset;
+                            MI_Byte_Complete <= 1;
+                            i_Byte_Count <= i_Byte_Count - 1;
+                        end
                     end
                 end
-            end
-            else if (clk_count != (clks_per_masterclk - 1)/ 2)
-            begin
-                clk_count <= clk_count + 1;
+                else if (clk_count != (clks_per_masterclk - 1)/ 2)
+                begin
+                    clk_count <= clk_count + 1;
+                end
             end
         end
         CS_DEASSERT:
