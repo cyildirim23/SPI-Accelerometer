@@ -23,45 +23,29 @@
 module Axis_Data_Router(  //FIFO to UART Tx
 
     input clk,
-    
     input show_X,
     input show_Y,
     input show_Z,
-    
     input Load,
-    input [15:0] DataIn,
+    input wire [15:0] DataIn,
     
     input [1:0] i_Byte_Count,
-    output reg [15:0] DataOut
-    
+    output reg [15:0] DataOut,
+    output reg [15:0] X_Data,
+    output reg [15:0] Y_Data,
+    output reg [15:0] Z_Data
     );
-    
+      
     reg [1:0] axis_number;
-    reg [15:0] X_Data;
-    reg [15:0] Y_Data;
-    reg [15:0] Z_Data;
     
-   
-    
+  
     always@(posedge clk)
     begin
-        if (i_Byte_Count == 0)
-            axis_number <= 3;
-        if (i_Byte_Count == 3 && Load == 1)
-            axis_number <= 3;
         if (i_Byte_Count == 2 && Load == 1)
-            axis_number <= 2;
-        if (i_Byte_Count == 1 && Load == 1)
-            axis_number <= 1;
-    end
-    
-    always@(posedge clk)
-    begin
-        if (axis_number == 3)
             X_Data <= DataIn;
-        if (axis_number == 2)
+        else if (i_Byte_Count == 1 && Load == 1)
             Y_Data <= DataIn;
-        if (axis_number == 1)
+        else if (i_Byte_Count == 0 && Load == 1)
             Z_Data <= DataIn;
     end
     
@@ -73,6 +57,8 @@ module Axis_Data_Router(  //FIFO to UART Tx
             DataOut <= Y_Data;
         else if (show_Z)
             DataOut <= Z_Data;
+        else
+            DataOut <= 0;
     end
 
 endmodule

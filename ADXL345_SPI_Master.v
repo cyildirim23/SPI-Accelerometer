@@ -42,9 +42,14 @@ module ADXL345_SPI_Master(
     output reg ten_bit = 0,
     output wire MO_Byte_Complete,
     output wire CMD_OUT,
+    output wire MI_Byte_Complete,
     output reg [3:0] MI_IndexReset = 7,  
     output [1:0] i_Byte_Count,
-    output Load
+    output Load,
+    output wire [15:0] r_MISO_Data,
+    output wire [1:0] o_Byte_Count,
+    output reg [1:0] bytes_to_read,
+    output reg [1:0] bytes_to_write
     );
     
    
@@ -53,8 +58,8 @@ module ADXL345_SPI_Master(
     reg [7:0] Byte_Command; //Determines operation parameters: read/write, and address
     reg [7:0] w_Data;   //Determines the data to be written. Only used for write operations
     reg [7:0] Command_params;
-    reg [3:0] bytes_to_write;
-    reg [3:0] bytes_to_read;
+    //reg [3:0] bytes_to_write;
+    //reg [3:0] bytes_to_read;
     
     reg Byte_Out;
     
@@ -127,7 +132,7 @@ module ADXL345_SPI_Master(
     Debounce_internal Byte_Out_DB(.switch_in(Byte_Out), .clk(clk), .switch_out(Byte_Out_db));
     
     SPI_Master Accel(.clk(clk), .CS1(CS1), .Byte_Command(Byte_Command), .i_Byte_Count(i_Byte_Count), .bytes_to_read(bytes_to_read), .bytes_to_write(bytes_to_write),
-    .ten_bit(ten_bit), .MISO(MISO), .MOSI(MOSI), .MISO_Data(MISO_Data), .spi_clk(spi_clk), .CS(CS), .CMD_OUT(CMD_OUT),
-    .MI_bitIndex(MI_bitIndex), .MO_bitIndex(MO_bitIndex), .clk_count(clk_count), .MO_Byte_Complete(MO_Byte_Complete), .MI_IndexReset(MI_IndexReset),
+    .ten_bit(ten_bit), .MISO(MISO), .MOSI(MOSI), .MISO_Data(MISO_Data), .spi_clk(spi_clk), .CS(CS), .CMD_OUT(CMD_OUT), .r_MISO_Data(r_MISO_Data), .o_Byte_Count(o_Byte_Count),
+    .MI_bitIndex(MI_bitIndex), .MI_Byte_Complete(MI_Byte_Complete), .MO_bitIndex(MO_bitIndex), .clk_count(clk_count), .MO_Byte_Complete(MO_Byte_Complete), .MI_IndexReset(MI_IndexReset),
     .SM(SM), .Load(Load));
 endmodule

@@ -23,8 +23,11 @@
 module Byte_Display(                     //This module is responsible for displaying the mode, last received byte
                                     //(in hex, if the device is in receive mode) and the next byte to send 
        
-    input clk,                                //(if the device is in transmit mode) 
-    input wire [15:0] Rx_Data,           //Array which holds the most recently stored word  (Displayed in Rx mode)          //Array which holds the next word to be sent (Displayed in Tx mode)
+                                    //(if the device is in transmit mode) 
+    input [3:0] ones,     
+    input [3:0] tens,
+    input [3:0] hundreds,     
+    input [3:0] thousands,           //Array which holds the most recently stored word  (Displayed in Rx mode)          //Array which holds the next word to be sent (Displayed in Tx mode)
     input wire [1:0] Array,
     
     output reg [7:1] C,         //Array responsible for the lighting of each individual segment for a 7-seg display
@@ -33,16 +36,16 @@ module Byte_Display(                     //This module is responsible for displa
     
     //for both Rx_Data and Tx_Data, each array is split in two. Each part is used to determine a hex digit
     
-    wire [3:0] halfbyte_1;     
-    wire [3:0] halfbyte_2; 
-    wire [3:0] halfbyte_3;     
-    wire [3:0] halfbyte_4;      
-
+    wire [3:0] halfbyte_1;
+    wire [3:0] halfbyte_2;
+    wire [3:0] halfbyte_3;
+    wire [3:0] halfbyte_4;
+          
     
-    assign halfbyte_1 = Rx_Data[3:0];
-    assign halfbyte_2 = Rx_Data[7:4];
-    assign halfbyte_3 = Rx_Data[11:8];
-    assign halfbyte_4 = Rx_Data[15:12];
+    assign halfbyte_1 = thousands;
+    assign halfbyte_2 = hundreds;
+    assign halfbyte_3 = tens;
+    assign halfbyte_4 = ones;
     
 
     
@@ -82,7 +85,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b0111:    C = seven;
                 4'b1000:    C = eight;
                 4'b1001:    C = nine;
-                4'b1010:    C = A;  
+                4'b1010:    C = A;
                 4'b1011:    C = b;
                 4'b1100:    C = c;
                 4'b1101:    C = d;
@@ -104,7 +107,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b0111:    C = seven;
                 4'b1000:    C = eight;
                 4'b1001:    C = nine;
-                4'b1010:    C = A;  
+                4'b1010:    C = A;
                 4'b1011:    C = b;
                 4'b1100:    C = c;
                 4'b1101:    C = d;
@@ -126,7 +129,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b0111:    C = seven;
                 4'b1000:    C = eight;
                 4'b1001:    C = nine;
-                4'b1010:    C = A;  
+                4'b1010:    C = A;
                 4'b1011:    C = b;
                 4'b1100:    C = c;
                 4'b1101:    C = d;
@@ -148,7 +151,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b0111:    C = seven;
                 4'b1000:    C = eight;
                 4'b1001:    C = nine;
-                4'b1010:    C = A;  
+                4'b1010:    C = A;
                 4'b1011:    C = b;
                 4'b1100:    C = c;
                 4'b1101:    C = d;

@@ -76,37 +76,27 @@ module top(
     
     
     wire Load_Data;
+    
     wire ten_bit;
     wire [1:0] Array;
     wire [3:0] i_Byte_Count;
     wire MI_Byte_Complete;
-    wire read_pulse;
-    wire write_pulse;
+
     
     wire [15:0] SO_Data;
     wire [15:0] Display_Data;
-    
-    wire [15:0] X_Data;
-    wire [7:0] X_DataOut1;
-    wire [7:0] X_DataOut2;
-    
-    wire [15:0] Y_Data;
-    wire [7:0] Y_DataOut1;
-    wire [7:0] Y_DataOut2;
-    
-    wire [15:0] Z_Data;
-    wire [7:0] Z_DataOut1;
-    wire [7:0] Z_DataOut2;
-    
-    wire Axis_Data_Increment;
-    wire Axis_Change;
    
-    wire [15:0] o_X_Disp; 
-    wire [15:0] o_Y_Disp; 
-    wire [15:0] o_Z_Disp; 
     wire Enable_pulse;
     
     wire [1:0] SI_Byte_Count;
+    
+    wire [15:0] Axis_Data;
+    
+    wire [3:0] ones_data;
+    wire [3:0] tens_data;
+    wire [3:0] hundreds_data;
+    wire [3:0] thousands_data;
+   
     
     
    /**/  
@@ -123,12 +113,15 @@ module top(
     */
     Byte_Display_Selector AN_Select(clk, Array);
      
-    Byte_Display MISO_Display(.Rx_Data(Display_Data), 
-    .clk(clk), .Array(Array), .C(C), .AN(AN));
+    Byte_Display MISO_Display(.ones(ones_data), .tens(tens_data), .hundreds(hundreds_data), .thousands(thousands_data)
+    , .Array(Array), .C(C), .AN(AN));
     
     Axis_Data_Router (.clk(clk), .i_Byte_Count(SI_Byte_Count), 
     .show_X(show_X), .show_Y(show_Y), .show_Z(show_Z),
-    .DataIn(SO_Data), .DataOut(Display_Data), .Load(Load_Data));
+    .DataIn(SO_Data), .DataOut(Axis_Data), .Load(Load_Data));
+    
+    Binary_to_Decimal BtD(.Accel_Data(Axis_Data), .clk(clk), .Load(Load_Data), 
+    .ones(ones_data), .tens(tens_data), .hundreds(hundreds_data), .thousands(thousands_data)); 
     
      //Debounce Command (.switch_in(CS1), .clk(clk), .switch_out(Load));//switch to see next word stored in FIFO
      //Debounce_Pulse Read_request (.switch_in(read), .clk(clk), .pulse_out(read_pulse));

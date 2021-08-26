@@ -51,11 +51,14 @@ module SPI_Master(
     output reg MI_Byte_Complete = 0,
     output reg [1:0] i_Byte_Count = 0,
     output reg [1:0] o_Byte_Count = 0,
-    output reg Load
+    output wire Load,
+    output reg [15:0] r_MISO_Data = 0
     );          
     
+    assign Load = MI_Byte_Complete;
 
-    reg [15:0] r_MOSI_Data;
+    reg [7:0] r_MOSI_Data;
+    reg [1:0] BCcount = 0;
             
     //Configure CPOL and CPHA
     
@@ -65,7 +68,7 @@ module SPI_Master(
     //reg write_trigger = 0;
     //reg read_trigger = 0;
     
-   reg [7:0] r_MISO_Data;
+   
    
     
    reg off_after_complete = 0;
@@ -83,6 +86,8 @@ module SPI_Master(
     
     always@(posedge clk)
     begin
+        if (BCcount == 1)
+            MI_Byte_Complete <= 0;
         case(SM)
         IDLE:
         begin
@@ -120,11 +125,9 @@ module SPI_Master(
         begin
             if (MI_Byte_Complete)
             begin
-                Load <= 1;
                 MISO_Data <= r_MISO_Data;
             end
             else if (!MI_Byte_Complete)
-                Load <= 0;
             if (o_Byte_Count == 0 && i_Byte_Count == 0)// || (!CS1 && o_Byte_Count == 0 && i_Byte_Count == 0))
             begin
                 clk_count <= 0;
@@ -203,4 +206,12 @@ module SPI_Master(
         endcase
     end
     
+    always@(posedge clk)
+    begin
+        if (MI_Byte_Complete || BCcount == 1)
+            BCcount <= BCcount + 1;
+        if (BCcount == 1)
+            BCcount <= 0;
+    end
+        
 endmodule
