@@ -18,13 +18,14 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-module SPI_FIFO(                   //This module is for a FIFO. It stores any words received by the receiver
+module SPI_FIFO(                   //This module is for a FIFO. It stores any words received by the receiver                    //Display to Router
                                     //or any user-inputted byte, and reads them oldest first                              
-    input Master_clk,
+    input clk,
     input wire write_ready, //Pulse sent once a byte is requested
     input wire read_ready, //Pulse sent once a full byte is received by MASTER
-    input wire [7:0] Rx_dataIn,  
-    output [7:0] Rx_DataOut,   //UART receiver input
+    input wire [15:0] Rx_dataIn,  
+    output [7:0] Rx_DataOut1,   //UART receiver input Tx input
+    output [7:0] Rx_DataOut2,
 
     //output [7:0] r_Display_Data,    //Holds the most recently stored word for display purposes (displayed in Rx mode)
     output reg EMPTY = 1,           //Used to tell if FIFO is empty. Linked to an LED
@@ -32,7 +33,7 @@ module SPI_FIFO(                   //This module is for a FIFO. It stores any wo
     
     reg [3:0] counter = 0;
     reg [1:0] SM = 0;
-    reg [7:0] FIFO [3:0];   //FIFO is 8 bits deep, 4 words wide
+    reg [15:0] FIFO [3:0];   //FIFO is 8 bits deep, 4 words wide
     reg [2:0] readCount = 0;    //Keeps track of how many read processes 
     reg [2:0] writeCount = 0;   //Keeps track of how many write processes
     
@@ -43,10 +44,11 @@ module SPI_FIFO(                   //This module is for a FIFO. It stores any wo
     
     integer i;
     
-    assign Rx_DataOut = FIFO[0];  
+    assign Rx_DataOut1 = FIFO[0] [7:0];  
+    assign Rx_DataOut2 = FIFO[0] [15:8];
     
     
-    always@(posedge Master_clk)
+    always@(posedge clk)
     begin
         case(SM)
         0:              //IDLE
@@ -87,7 +89,7 @@ module SPI_FIFO(                   //This module is for a FIFO. It stores any wo
                     FIFO[i] <= FIFO[i + 1]; 
                 end
                 if(counter == 1)
-                    FIFO[0] <= 8'b00000000;                       
+                    FIFO[0] <= 16'b0000000000000000;                       
                 counter <= counter - 1; //Decrement counter                     
                 SM <= IDLE;      
            end                         //Go to IDLE
