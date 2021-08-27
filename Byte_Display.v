@@ -29,7 +29,7 @@ module Byte_Display(                     //This module is responsible for displa
     input [3:0] hundreds,     
     input [3:0] thousands,           //Array which holds the most recently stored word  (Displayed in Rx mode)          //Array which holds the next word to be sent (Displayed in Tx mode)
     input wire [1:0] Array,
-    input wire sign,
+
     output reg [7:1] C,         //Array responsible for the lighting of each individual segment for a 7-seg display
     output reg [3:0] AN         //Array responsible for controlling which displays are in use 
     );                          //(displaying the current value of C)
@@ -42,7 +42,7 @@ module Byte_Display(                     //This module is responsible for displa
     wire [3:0] halfbyte_4;
           
     
-    assign halfbyte_1 = sign;
+    assign halfbyte_1 = thousands;
     assign halfbyte_2 = hundreds;
     assign halfbyte_3 = tens;
     assign halfbyte_4 = ones;
@@ -75,17 +75,23 @@ module Byte_Display(                     //This module is responsible for displa
         0:                                  //while in receive mode. Happens fast enough for all to appear at once
         begin
             AN = 4'b0111;
-            case(sign)
-                1'b0:
-                begin
-                    AN = 4'b1111;
-                end
-                1'b1:    
-                begin
-                    C = minus;
-                    AN = 4'b0111; 
-                end
-                
+            case(thousands)
+                4'b0000:    C = zero;
+                4'b0001:    C = one;
+                4'b0010:    C = two;
+                4'b0011:    C = three;
+                4'b0100:    C = four;
+                4'b0101:    C = five;
+                4'b0110:    C = six;
+                4'b0111:    C = seven;
+                4'b1000:    C = eight;
+                4'b1001:    C = nine;
+                4'b1010:    C = A;
+                4'b1011:    C = b;
+                4'b1100:    C = c;
+                4'b1101:    C = d;
+                4'b1110:    C = E;
+                4'b1111:    C = F;       
             endcase
         end  
         1:

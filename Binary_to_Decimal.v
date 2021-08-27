@@ -66,7 +66,7 @@ module Binary_to_Decimal(
     
     integer i;
     
-    always@(magnitude)
+    always@(acceleration)
     begin
         ones = 4'd0;
         tens = 4'd0;
@@ -93,7 +93,7 @@ module Binary_to_Decimal(
             tens[0] = ones[3];
             
             ones = ones << 1;
-            ones[0] = magnitude[i];
+            ones[0] = acceleration[i];
         end
 
     end
