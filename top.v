@@ -62,8 +62,8 @@ module top(
     output read_readyLED,
     
     //Output LEDs
-    input MISO
-    
+    input MISO,
+    output sign
     );
     
     /*(* DONT_TOUCH = "TRUE" *) */ ADXL345_SPI_Master Accel(.clk(clk), .CS1(CS1), .Test_Switch(Test_Switch),
@@ -113,7 +113,7 @@ module top(
     */
     Byte_Display_Selector AN_Select(clk, Array);
      
-    Byte_Display MISO_Display(.sign(sign), .ones(ones_data), .tens(tens_data), .hundreds(hundreds_data), .thousands(thousands_data)
+    Byte_Display MISO_Display(.ones(ones_data), .tens(tens_data), .hundreds(hundreds_data), .thousands(thousands_data)
     , .Array(Array), .C(C), .AN(AN));
     
     Axis_Data_Router (.clk(clk), .i_Byte_Count(SI_Byte_Count), 
