@@ -33,6 +33,8 @@ module Binary_to_Decimal(
     output wire [9:0] Decimal_Data,
     output wire [2:0] reg0_practical,
     output wire [7:0] reg1_practical,
+    output wire [7:0] reg0,
+    output wire [7:0] reg1,
     output wire negative
     );
     
@@ -42,8 +44,8 @@ module Binary_to_Decimal(
     //reg [9:0] result;
     //reg [9:0] magnitude;
     
-    wire [7:0] reg0;
-    wire [7:0] reg1;
+    //wire [7:0] reg0;
+    //wire [7:0] reg1;
     
     assign reg0 = Accel_Data [15:8];
     assign reg1 = Accel_Data [7:0];

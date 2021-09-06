@@ -29,6 +29,7 @@ module ADXL345_SPI_Master(
     input MISO, // MISO stream (top in) (slave out)
     input CS1, // chip select (top in)  top SPI
     input measure_mode,
+    input rate_control,
     
     output wire CS, // chip select used by slave & master (top out)
     output wire MOSI, //MOSI stream (top out) 
@@ -68,27 +69,27 @@ module ADXL345_SPI_Master(
     begin
         if (format)
         begin
-            Command_params = 8'b00110001;
-            w_Data = 8'b00000100;    
-            bytes_to_read = 1;
-            bytes_to_write = 2;
-            ten_bit = 0;
+            Command_params <= 8'b00110001;
+            w_Data <= 8'b00000100;    
+            bytes_to_read <= 1;
+            bytes_to_write <= 2;
+            ten_bit <= 0;
         end
         else if (Test_Switch)    //read operation, no w_Data
         begin
-            Command_params = 8'b10000000;
-            w_Data = 8'b00000000;
-            bytes_to_read = 1;
-            bytes_to_write = 1;   
-            ten_bit = 0;      
+            Command_params <= 8'b10000000;
+            w_Data <= 8'b00000000;
+            bytes_to_read <= 1;
+            bytes_to_write <= 1;   
+            ten_bit <= 0;      
         end
         else if (axis_data)
         begin
-            Command_params = 8'b11110010; //SECOND TO RIGHTMOST BIT SHOULD BE 1
-            w_Data = 8'b00000000;
-            bytes_to_read = 3;
-            bytes_to_write = 1;
-            ten_bit = 1;
+            Command_params <= 8'b11110010; //SECOND TO RIGHTMOST BIT SHOULD BE 1
+            w_Data <= 8'b00000000;
+            bytes_to_read <= 3;
+            bytes_to_write <= 1;
+            ten_bit <= 1;
         end
         else if (measure_mode)
         begin
@@ -98,11 +99,19 @@ module ADXL345_SPI_Master(
             bytes_to_write <= 2;
             ten_bit <= 0;
         end
+        else if (rate_control)
+        begin
+            Command_params <= 8'b00101100;
+            w_Data <= 8'b00001111;    
+            bytes_to_read <= 1;
+            bytes_to_write <= 2;
+            ten_bit <= 0;
+        end
         else
         begin
-            Command_params  = 8'b00000000;
-            bytes_to_read = 1;
-            ten_bit = 0;
+            Command_params  <= 8'b00000000;
+            bytes_to_read <= 1;
+            ten_bit <= 0;
         end                     
     end
     

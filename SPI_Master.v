@@ -44,7 +44,7 @@ module SPI_Master(
   
     output reg [3:0] MI_bitIndex = 7,
     output reg [2:0] MO_bitIndex = 7,
-    output reg [6:0] clk_count = 0,
+    output reg [9:0] clk_count = 0,
     output reg [2:0] SM = 0,
     output reg MO_Byte_Complete,
     input wire [3:0] MI_IndexReset,
@@ -62,7 +62,7 @@ module SPI_Master(
             
     //Configure CPOL and CPHA
     
-    parameter clks_per_masterclk = 100; //4MHz master clk
+    parameter clks_per_masterclk = 1000; //100KHz master clk
     
     //reg [2:0] bitIndex = 0;
     //reg write_trigger = 0;
