@@ -94,13 +94,13 @@ module top(
      .wordComplete(wordComplete), .Load(Load_Data));
     
     UART_Tx_2Byte Tx_Module
-    (.clk(clk), .Enable_Pulse(Enable_pulse), .Accel_Data(Tx_Data),
+    (.clk(clk), .DB_Enable_Switch(DB_Enable_Switch), .Accel_Data(Tx_Data),
      .Tx_Serial(Tx_Out), .wordComplete(wordComplete)); 
     
     FIFO_Binary_To_Decimal Converter
     (.Accel_Data(FIFO_Axis_Data), .Tx_Data(Tx_Data));
     
-    Debounce Tx_Enable (.switch_in(Enable), .clk(clk), .switch_out(Enable_pulse));
+    Debounce Tx_Enable (.switch_in(Enable), .clk(clk), .switch_out(DB_Enable_Switch));
     
 endmodule
     

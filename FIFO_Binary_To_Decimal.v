@@ -1,26 +1,12 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 09/02/2021 10:39:54 PM
-// Design Name: 
-// Module Name: FIFO_Binary_To_Decimal
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+/*
+This module does the first part of the Binary to Decimal module; it rearranges the 16-bit (10-bit usable) acceleration data into
+the correct order. The module gets synthesized away (since it is only wire assignments), but it is used as a module for design readability.
+See "Binary_to_Decimal.v" for details
+*/
 
 
-module FIFO_Binary_To_Decimal(      //Rearranges raw axis data into 10-bit binary, with bits in correct order
+module FIFO_Binary_To_Decimal(      
     
     input [15:0] Accel_Data,
     output wire [15:0] Tx_Data
@@ -28,9 +14,11 @@ module FIFO_Binary_To_Decimal(      //Rearranges raw axis data into 10-bit binar
     );
 
     wire [9:0] Decimal_Data;
+    
     wire [2:0] reg0_practical;
     wire [7:0] reg1_practical;
-    wire [7:0] reg0;
+    
+    wire [7:0] reg0;                                    
     wire [7:0] reg1;
     
     assign reg0 = Accel_Data [15:8];

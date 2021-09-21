@@ -1,56 +1,34 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/12/2021 12:35:53 PM
-// Design Name: 
-// Module Name: Byte_Display
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+/*
+This module is responsible for driving the 7 seg display. On each refresh (signalled by the Byte_Display_selector), a 
+new array is lit with the corresponding character. Due to the refresh rate, the 7 seg display appears to be displaying
+all arrays with the proper character at the same time
+*/
 
+module Byte_Display(                    
 
-module Byte_Display(                     //This module is responsible for displaying the mode, last received byte
-                                    //(in hex, if the device is in receive mode) and the next byte to send 
-       
-                                    //(if the device is in transmit mode) 
-    input [3:0] ones,     
-    input [3:0] tens,
-    input [3:0] hundreds,     
-    input [3:0] thousands,           //Array which holds the most recently stored word  (Displayed in Rx mode)          //Array which holds the next word to be sent (Displayed in Tx mode)
-    input wire [1:0] Array,
+    input [3:0] ones,                       //Ones input from B_t_D
+    input [3:0] tens,                       //Tens input from B_t_D
+    input [3:0] hundreds,                   //Hundreds input from B_t_D
+    input [3:0] thousands,                  //Thousands input from B_t_D      
+    input wire [1:0] Array,                 //Array input from display selector. Indicates which AN (7seg index) is lit
 
-    output reg [7:1] C,         //Array responsible for the lighting of each individual segment for a 7-seg display
-    output reg [3:0] AN         //Array responsible for controlling which displays are in use 
-    );                          //(displaying the current value of C)
-    
-    //for both Rx_Data and Tx_Data, each array is split in two. Each part is used to determine a hex digit
-    
+    output reg [7:1] C,                     //Array responsible for the lighting of each individual segment of the current 7-seg AN
+    output reg [3:0] AN                     //Array responsible for controlling which AN value is lit 
+    );                          
+      
     wire [3:0] halfbyte_1;
     wire [3:0] halfbyte_2;
     wire [3:0] halfbyte_3;
     wire [3:0] halfbyte_4;
-          
-    
+                                            //Each half-byte is assigned a power of 10 to display (from -2000mGs to 2000mGs)
     assign halfbyte_1 = thousands;
     assign halfbyte_2 = hundreds;
     assign halfbyte_3 = tens;
     assign halfbyte_4 = ones;
     
-
-    
     parameter nine = 7'b0010000;                //Values of C corresponding to the different numbers and letters used
-    parameter eight = 7'b0000000;               //in displaying hex values
+    parameter eight = 7'b0000000;                
     parameter seven = 7'b1111000;
     parameter six = 7'b0000010;
     parameter five = 7'b0010010;
@@ -71,8 +49,8 @@ module Byte_Display(                     //This module is responsible for displa
     
     always@(Array)
     begin
-        case(Array)                         //Displays the first hex character, then the second, then the "r" 
-        0:                                  //while in receive mode. Happens fast enough for all to appear at once
+        case(Array)                         
+        0:                                      //When Array is 0, display the correct thousands digit in the leftmost array
         begin
             AN = 4'b0111;
             case(thousands)
@@ -94,7 +72,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b1111:    C = F;       
             endcase
         end  
-        1:
+        1:                                      //When Array is 1, display the correct hundreds digit in the second leftmost array
         begin 
             AN = 4'b1011;
             case(halfbyte_2)
@@ -116,7 +94,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b1111:    C = F;
             endcase
         end
-        2:
+        2:                                      //When Array is 2, display the correct tens digit in the second rightmost array
         begin
             AN = 4'b1101;
             case(halfbyte_3)
@@ -138,7 +116,7 @@ module Byte_Display(                     //This module is responsible for displa
                 4'b1111:    C = F;
             endcase
         end
-        3:
+        3:                                      //When Array is 3, display the correct ones digit in the rightmost array
         begin
             AN = 4'b1110;
             case(halfbyte_4)

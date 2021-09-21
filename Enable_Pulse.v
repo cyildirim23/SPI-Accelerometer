@@ -30,9 +30,6 @@ module Enable_Pulse(
     reg [12:0] counter = 0;            //Used to determine how long pulse lasts
     //output reg [1:0] lock = 0;               //Used to keep the output at 0 after a pulse, if the input is still high
     
-    
-    
-    
     parameter pulse_length = 875; //Sets pulse width (number of clock cycles for one pulse)
     
     always@(posedge clk)
