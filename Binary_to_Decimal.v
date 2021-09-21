@@ -23,55 +23,49 @@
 module Binary_to_Decimal(
     
     input [15:0] Accel_Data,
-    input clk,
-    input Load,
     
     output reg [3:0] ones,
     output reg [3:0] tens,
     output reg [3:0] hundreds,
     output reg [3:0] thousands,
-    output wire [9:0] Decimal_Data,
-    output wire [2:0] reg0_practical,
-    output wire [7:0] reg1_practical,
     output wire negative
     );
     
-    wire [11:0] acceleration;
-    reg [9:0] binary;
-
-    //reg [9:0] result;
-    //reg [9:0] magnitude;
-    
+    wire [9:0] Decimal_Data;
+    wire [2:0] reg0_practical;
+    wire [7:0] reg1_practical;
     wire [7:0] reg0;
     wire [7:0] reg1;
+    wire [9:0] twos_complement;
+    wire [9:0] magnitude;
+    wire [11:0] acceleration;
     
+    reg [9:0] binary;
+    
+    integer i;
+
     assign reg0 = Accel_Data [15:8];
     assign reg1 = Accel_Data [7:0];
     
-    
     assign reg0_practical[2:0] = reg0[7:5];
-    
     assign reg1_practical = reg1[6:0];
     
     assign Decimal_Data [9:3] = reg1_practical;
     assign Decimal_Data [2:0] = reg0_practical;
     
-    wire negative;
-    wire [9:0] twos_complement;
-    wire [9:0] magnitude;
     assign negative = Decimal_Data[9];
     assign twos_complement = ~Decimal_Data + 1'd1;
     assign magnitude = negative ? twos_complement : Decimal_Data;
     assign acceleration = magnitude * 4;
     
-    integer i;
-    
     always@(acceleration)
     begin
+    
         ones = 4'd0;
         tens = 4'd0;
         hundreds = 4'd0;
         thousands = 4'd0;
+        
         for(i = 9; i>=0; i = i-1)
         begin
             if (ones >= 5)
